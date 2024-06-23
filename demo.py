@@ -1,6 +1,7 @@
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 
 
@@ -24,3 +25,6 @@ embeddings = HuggingFaceEmbeddings(
     model_kwargs = model_kwargs,
     encode_kwargs = encode_kwargs
 )
+
+# Create Vector Store, convert to embeddings and store in a vector store
+vector_store = FAISS.from_documents(documents=documents, embedding=embeddings)
