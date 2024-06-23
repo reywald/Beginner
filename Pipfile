@@ -7,6 +7,9 @@ name = "pypi"
 langchain = "*"
 langchain-huggingface = "*"
 python-dotenv = "*"
+bs4 = "*"
+faiss-cpu = "*"
+langchain-community = "*"
 
 [dev-packages]
 pipenv = "*"
