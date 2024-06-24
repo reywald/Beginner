@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+from langchain.chains.history_aware_retriever import \
+    create_history_aware_retriever
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -44,3 +46,7 @@ prompt_search_query = ChatPromptTemplate.from_messages([
      search query to look up to get information relevant
      to the conversation""")
 ])
+
+# Instantiate Retriever chain from llm, vector retriever and prompt
+retriever_chain = create_history_aware_retriever(
+    llm=llm, retriever=retriever, prompt=prompt_search_query)
