@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 load_dotenv()
@@ -23,3 +23,12 @@ embeddings = HuggingFaceEndpointEmbeddings(
 vector_store = FAISS.from_documents(
     documents=web_documents, embedding=embeddings)
 retriever = vector_store.as_retriever()
+
+# Import HuggingFaceEndpoint and create an LLM
+llm = HuggingFaceEndpoint(
+    repo_id="HuggingFaceH4/zephyr-7b-beta",
+    task="text-generation",
+    max_new_tokens=512,
+    do_sample=False,
+    repetition_penalty=1.03,
+)
