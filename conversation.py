@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_huggingface import (HuggingFaceEndpoint,
+                                   HuggingFaceEndpointEmbeddings)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 load_dotenv()
@@ -32,3 +34,13 @@ llm = HuggingFaceEndpoint(
     do_sample=False,
     repetition_penalty=1.03,
 )
+
+# Create prompt to contain user input, chat history and message
+# to generate a search query
+prompt_search_query = ChatPromptTemplate.from_messages([
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("user", "{input}"),
+    ("user", """Given the above conversation, generate a 
+     search query to look up to get information relevant
+     to the conversation""")
+])
