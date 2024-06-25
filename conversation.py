@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import \
     create_history_aware_retriever
 from langchain_community.document_loaders import WebBaseLoader
@@ -50,3 +51,15 @@ prompt_search_query = ChatPromptTemplate.from_messages([
 # Instantiate Retriever chain from llm, vector retriever and prompt
 retriever_chain = create_history_aware_retriever(
     llm=llm, retriever=retriever, prompt=prompt_search_query)
+
+# Create prompt to get response to user input
+prompt_get_answer = ChatPromptTemplate.from_messages([
+    ("system", """Answer the user's questions based on 
+     the below context:\n\n{context}"""),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("user", "{input}"),
+])
+
+# Send Retrieved documents to LLM and get response
+document_chain = create_stuff_documents_chain(
+    llm=llm, prompt=prompt_get_answer)
