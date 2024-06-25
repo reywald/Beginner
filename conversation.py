@@ -2,8 +2,10 @@ from dotenv import load_dotenv
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import \
     create_history_aware_retriever
+from langchain.chains.retrieval import create_retrieval_chain
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import FAISS
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_huggingface import (HuggingFaceEndpoint,
                                    HuggingFaceEndpointEmbeddings)
@@ -48,8 +50,9 @@ prompt_search_query = ChatPromptTemplate.from_messages([
      to the conversation""")
 ])
 
-# Instantiate Retriever chain from llm, vector retriever and prompt
-retriever_chain = create_history_aware_retriever(
+# Create history-aware Retriever chain to retrieve relevant data
+# from vector store using llm, vector retriever and prompt
+history_retriever_chain = create_history_aware_retriever(
     llm=llm, retriever=retriever, prompt=prompt_search_query)
 
 # Create prompt to get response to user input
@@ -63,3 +66,18 @@ prompt_get_answer = ChatPromptTemplate.from_messages([
 # Send Retrieved documents to LLM and get response
 document_chain = create_stuff_documents_chain(
     llm=llm, prompt=prompt_get_answer)
+
+# Crete Conversational chain using retriever chain and document chain
+retrieval_chain = create_retrieval_chain(
+    retriever=history_retriever_chain, combine_docs_chain=document_chain)
+
+# Invoke the chain
+chat_history = [
+    HumanMessage(content="Does DASA allow anybody to be certified?"),
+    AIMessage(content="Yes")
+]
+response = retrieval_chain.invoke({
+    "chat_history": chat_history,
+    "input": "How?"
+})
+print(response)
