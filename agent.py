@@ -2,6 +2,7 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.tools.retriever import create_retriever_tool
 
 # Use WebBaseLoader to extract data from the dasa.org website
 web_loader = WebBaseLoader("https://www.dasa.org")
@@ -21,3 +22,10 @@ embeddings = HuggingFaceEndpointEmbeddings(
 vector_store = FAISS.from_documents(
     documents=document_fragments, embedding=embeddings)
 retriever = vector_store.as_retriever()
+
+# Create retriever tool
+retriever_tool = create_retriever_tool(
+    retriever=retriever, 
+    name="DASA_search",
+    description="Search for information about DASA. For any questions about DASA, you must use this tool"
+)
