@@ -1,5 +1,10 @@
 from dotenv import load_dotenv
+from langchain import hub
+from langchain.agents import create_react_agent
+from langchain.agents import AgentExecutor
+from langchain_community.chat_models.huggingface import ChatHuggingFace
 from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
@@ -40,3 +45,18 @@ search_tool = TavilySearchResults()
 
 # Create list of prepared AI tools
 tools = [retriever_tool, search_tool]
+
+# Create the AI agent
+prompt = hub.pull("hwchase17/react")
+
+# Create an LLM using HuggingFaceHub API token
+llm = HuggingFaceEndpoint(
+    repo_id="HuggingFaceH4/zephyr-7b-beta",
+    task="text-generation",
+    max_new_tokens=512,
+    do_sample=False,
+    repetition_penalty=1.03,
+)
+
+agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
