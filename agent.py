@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
 from langchain import hub
-from langchain.agents import create_react_agent
-from langchain.agents import AgentExecutor
-from langchain_community.chat_models.huggingface import ChatHuggingFace
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents.output_parsers import ReActSingleInputOutputParser
 from langchain_community.document_loaders import WebBaseLoader
-from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpoint
+from langchain_huggingface.chat_models import ChatHuggingFace
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
@@ -58,5 +58,13 @@ llm = HuggingFaceEndpoint(
     repetition_penalty=1.03,
 )
 
-agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+chat_model = ChatHuggingFace(llm=llm)
+
+output_parser = ReActSingleInputOutputParser()
+
+agent = create_react_agent(
+    llm=chat_model, tools=tools, prompt=prompt, output_parser=output_parser)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+# Invoke the AI agent
+agent_executor.invoke({'input': 'What is the mission of DASA?'})
